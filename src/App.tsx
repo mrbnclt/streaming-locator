@@ -1,6 +1,14 @@
 import '@mantine/core/styles.css'
 import { createTheme, MantineProvider } from '@mantine/core'
-import { Home } from './pages/Home'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createRouter, RouterProvider } from '@tanstack/react-router'
+import { indexRoute, rootRoute, showRoute } from './routes'
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
 
 const theme = createTheme({
   colors: {
@@ -22,10 +30,20 @@ const theme = createTheme({
   black: '#575757',
 })
 
+const queryClient = new QueryClient()
+
+const routeTree = rootRoute.addChildren([indexRoute, showRoute])
+
+const router = createRouter({
+  routeTree,
+})
+
 function App() {
   return (
     <MantineProvider theme={theme}>
-      <Home />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </MantineProvider>
   )
 }

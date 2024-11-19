@@ -5,9 +5,12 @@ export const Home = () => {
   return (
     <Center
       w="100%"
-      h="100%"
       display="flex"
-      style={{ flexDirection: 'column', gap: '15px' }}
+      style={{
+        flexDirection: 'column',
+        gap: '15px',
+        height: 'calc(100vh - 120px)',
+      }}
     >
       <Image w="100px" h="100px" src="./logo.svg" />
       <Title order={1} size="h2">

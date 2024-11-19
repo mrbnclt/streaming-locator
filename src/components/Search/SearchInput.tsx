@@ -1,20 +1,96 @@
-import { Input } from '@mantine/core'
-import { useState } from 'react'
-import { SearchIcon } from './SearchIcon'
+import {
+  Combobox,
+  TextInput,
+  useCombobox,
+  Text,
+  Image,
+  Box,
+} from '@mantine/core'
+import { useDebouncedValue } from '@mantine/hooks'
+import { useQuery } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import { fetchShows } from '../../services'
+import { useNavigate } from '@tanstack/react-router'
 
 export const SearchInput = () => {
-  const [searchText, setSearchText] = useState<string>()
+  const navigate = useNavigate()
+  const [searchText, setSearchText] = useState<string>('')
+  const [debouncedText] = useDebouncedValue<string>(searchText, 500, {
+    leading: false,
+  })
+
+  const { data } = useQuery({
+    queryKey: ['shows', debouncedText],
+    queryFn: fetchShows,
+  })
+
+  const combobox = useCombobox({
+    onDropdownClose: () => {
+      combobox.resetSelectedOption()
+    },
+  })
+
+  useEffect(() => {
+    if (data && data.results.length > 0) {
+      combobox.openDropdown()
+    }
+  }, [data, combobox])
+
+  const options = data?.results.map((item) => (
+    <Combobox.Option value={item.id.toString()} key={item.id.toString()}>
+      <Box display="flex" style={{ gap: '10px' }}>
+        <Image
+          radius="md"
+          h={200}
+          w="auto"
+          fit="contain"
+          src={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
+        />
+        <Box>
+          <Text size="md">{item.name ?? item.title}</Text>
+          <Text size="sm" opacity={0.8}>
+            {item.overview}
+          </Text>
+        </Box>
+      </Box>
+    </Combobox.Option>
+  ))
+
   return (
-    <Input
-      w="40vw"
-      size="lg"
-      placeholder="find show"
-      value={searchText}
-      onChange={(event) => {
-        setSearchText(event.currentTarget.value)
+    <Combobox
+      onOptionSubmit={(optionValue) => {
+        void navigate({
+          to: `/show/${optionValue}`,
+        })
       }}
-      rightSectionPointerEvents="all"
-      rightSection={<SearchIcon />}
-    />
+      store={combobox}
+    >
+      <Combobox.Target>
+        <TextInput
+          w="45vw"
+          size="lg"
+          placeholder="find shows"
+          value={searchText}
+          onChange={(event) => {
+            setSearchText(event.currentTarget.value)
+          }}
+          onFocus={() => {
+            if (data && data.results.length > 0) {
+              combobox.openDropdown()
+            }
+          }}
+        />
+      </Combobox.Target>
+
+      <Combobox.Dropdown style={{ overflowY: 'scroll', maxHeight: '30%' }}>
+        <Combobox.Options>
+          {data && data.results.length === 0 ? (
+            <Combobox.Empty>Nothing found</Combobox.Empty>
+          ) : (
+            options
+          )}
+        </Combobox.Options>
+      </Combobox.Dropdown>
+    </Combobox>
   )
 }
