@@ -2,7 +2,7 @@ import '@mantine/core/styles.css'
 import { createTheme, MantineProvider } from '@mantine/core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { indexRoute, rootRoute, showRoute } from './routes'
+import { indexRoute, layoutRoute, rootRoute, showRoute } from './routes'
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -32,7 +32,9 @@ const theme = createTheme({
 
 const queryClient = new QueryClient()
 
-const routeTree = rootRoute.addChildren([indexRoute, showRoute])
+const routeTree = rootRoute.addChildren([
+  layoutRoute.addChildren([indexRoute, showRoute]),
+])
 
 const router = createRouter({
   routeTree,

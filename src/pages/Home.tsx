@@ -9,7 +9,7 @@ export const Home = () => {
       style={{
         flexDirection: 'column',
         gap: '15px',
-        height: 'calc(100vh - 120px)',
+        height: 'calc(100vh - 280px)',
       }}
     >
       <Image w="100px" h="100px" src="./logo.svg" />

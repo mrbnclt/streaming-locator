@@ -34,7 +34,8 @@ export const SearchInput = () => {
     if (data && data.results.length > 0) {
       combobox.openDropdown()
     }
-  }, [data, combobox])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data])
 
   const options = data?.results.map((item) => (
     <Combobox.Option value={item.id.toString()} key={item.id.toString()}>
@@ -78,6 +79,9 @@ export const SearchInput = () => {
             if (data && data.results.length > 0) {
               combobox.openDropdown()
             }
+          }}
+          onBlur={() => {
+            combobox.closeDropdown()
           }}
         />
       </Combobox.Target>
