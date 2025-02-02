@@ -8,11 +8,13 @@ import {
 } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { FC, useContext, useEffect, useState } from 'react'
 import { fetchShows } from '../../services'
 import { useNavigate } from '@tanstack/react-router'
+import { MetadataContext } from '../MetadataContext'
 
-export const SearchInput = () => {
+export const SearchInput: FC<{ placeholder?: string }> = ({ placeholder }) => {
+  const context = useContext(MetadataContext)
   const navigate = useNavigate()
   const [searchText, setSearchText] = useState<string>('')
   const [debouncedText] = useDebouncedValue<string>(searchText, 500, {
@@ -60,9 +62,20 @@ export const SearchInput = () => {
   return (
     <Combobox
       onOptionSubmit={(optionValue) => {
-        void navigate({
-          to: `/show/${optionValue}`,
-        })
+        const selectedShow = data?.results.filter(
+          (item) => item.id.toString() === optionValue
+        )
+
+        if (selectedShow && selectedShow.length > 0) {
+          const show = selectedShow[0]
+          context.setMetadata({
+            showType: show.media_type,
+            showTitle: show.name ?? show.title ?? '',
+          })
+          void navigate({
+            to: `/show/${optionValue}`,
+          })
+        }
       }}
       store={combobox}
     >
@@ -70,7 +83,7 @@ export const SearchInput = () => {
         <TextInput
           w="45vw"
           size="lg"
-          placeholder="find shows"
+          placeholder={placeholder ?? 'find shows'}
           value={searchText}
           onChange={(event) => {
             setSearchText(event.currentTarget.value)

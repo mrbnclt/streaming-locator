@@ -3,6 +3,8 @@ import { createTheme, MantineProvider } from '@mantine/core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { indexRoute, layoutRoute, rootRoute, showRoute } from './routes'
+import { MetadataContext } from './components'
+import { useState } from 'react'
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -41,11 +43,15 @@ const router = createRouter({
 })
 
 function App() {
+  const [metadata, setMetadata] = useState({ showType: '', showTitle: '' })
+
   return (
     <MantineProvider theme={theme}>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <MetadataContext.Provider value={{ metadata, setMetadata }}>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </MetadataContext.Provider>
     </MantineProvider>
   )
 }
